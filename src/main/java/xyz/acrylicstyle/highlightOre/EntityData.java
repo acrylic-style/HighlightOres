@@ -1,6 +1,7 @@
 package xyz.acrylicstyle.highlightOre;
 
 import net.minecraft.server.v1_15_R1.EntityFallingBlock;
+import org.bukkit.block.data.BlockData;
 
 import java.util.Objects;
 
@@ -9,12 +10,18 @@ public class EntityData {
     private final double x;
     private final double y;
     private final double z;
+    private final BlockData data;
 
-    public EntityData(EntityFallingBlock entity) {
+    public EntityData(EntityFallingBlock entity, BlockData data) {
         this.entity = entity;
         this.x = entity.locX();
         this.y = entity.locY();
         this.z = entity.locZ();
+        this.data = data;
+    }
+
+    public BlockData getData() {
+        return data;
     }
 
     public EntityFallingBlock getEntity() {
