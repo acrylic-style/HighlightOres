@@ -139,7 +139,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
                 .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()))
                 .collect(Collectors.toList());
         long end = System.currentTimeMillis();
-        Log.info("Fetching blocks took " + (end-start) + "ms");
+        // Log.info("Fetching blocks took " + (end-start) + "ms");
         return loc1;
     }
 
