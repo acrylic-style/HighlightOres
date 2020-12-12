@@ -22,8 +22,8 @@ public class ToggleCommand extends PlayerSubCommandExecutor {
         } else {
             HighlightOres.highlight.add(player.getUniqueId());
             int size = HighlightOres.highlight.size() * 25;
-            HighlightOres.pool.setMaximumPoolSize(size);
-            HighlightOres.pool.setCorePoolSize(size);
+            HighlightOres.writePool.setMaximumPoolSize(size);
+            HighlightOres.writePool.setCorePoolSize(size);
             player.addPotionEffects(Collections.singletonList(new PotionEffect(PotionEffectType.NIGHT_VISION, 1000000, 1, false, false)));
             player.sendMessage(ChatColor.GREEN + "Now you are highlighting the ores within 25 blocks range.");
         }

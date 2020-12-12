@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import util.CollectionList;
+import util.ICollectionList;
 import util.promise.IPromise;
 import util.promise.Promise;
 import xyz.acrylicstyle.highlightOres.gui.OreSelectGui;
@@ -37,17 +38,23 @@ import java.util.AbstractMap;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class HighlightOres extends JavaPlugin implements Listener {
+    private static final Object writeLock = new Object();
     public static final ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(25);
+    public static final ThreadPoolExecutor writePool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
     public static HighlightOres instance;
     public static final CollectionList<UUID> highlight = new CollectionList<>();
     public static final CollectionList<UUID> pending = new CollectionList<>();
     public static final BlockDataCache cache = new BlockDataCache();
+    public static final CollectionList<Float> times = new CollectionList<>();
+    public static float minTime = -1;
+    public static float maxTime = 0;
 
     @Override
     public void onLoad() {
@@ -63,7 +70,9 @@ public class HighlightOres extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        entities.keysList().forEach(HighlightOres::clearEntities);
         pool.shutdownNow();
+        writePool.shutdownNow();
     }
 
     public static final PerPlayerInventory<CollectionList<EntityData>> entities = new PerPlayerInventory<>(uuid -> new CollectionList<>());
@@ -162,30 +171,47 @@ public class HighlightOres extends JavaPlugin implements Listener {
         return new Promise<List<Map.Entry<Location, Material>>>() {
             @Override
             public List<Map.Entry<Location, Material>> apply(Object o) {
-                //pool.execute(() -> {
-                    CollectionList<BlockPosition> locations = new CollectionList<>();
-                    for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-                        for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
-                            for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
-                                locations.add(new BlockPosition(x, y, z));
-                            }
+                CollectionList<BlockPosition> locations = new CollectionList<>();
+                for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
+                    for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
+                        for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
+                            locations.add(new BlockPosition(x, y, z));
                         }
                     }
-                    //long start = System.currentTimeMillis();
-                    CraftWorld world = ((CraftWorld) location.getWorld());
-                    WorldServer w = world.getHandle();
-                    List<Map.Entry<Location, Material>> loc1 = locations
-                            .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(w, loc), loc))
-                            .filter(data -> materials.contains(data.getKey().getMaterial()))
-                            .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()));
-                    //long end = System.currentTimeMillis();
-                    //Log.info("Fetching blocks took " + (end-start) + "ms");
-                    //resolve(loc1);
+                }
+                long start = System.currentTimeMillis();
+                CraftWorld world = ((CraftWorld) location.getWorld());
+                WorldServer w = world.getHandle();
+                List<Map.Entry<Location, Material>> loc1 = locations
+                        .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(w, loc), loc))
+                        .filter(data -> materials.contains(data.getKey().getMaterial()))
+                        .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()));
+                long end = System.currentTimeMillis();
+                float time = (end - start) / 1000F;
+                writePool.execute(() -> {
+                    synchronized (writeLock) {
+                        times.add(0, time);
+                        if (times.size() > 100) {
+                            for (int i = 100; i < times.size(); i++) {
+                                times.remove(i - 1);
+                            }
+                        }
+                        times.removeIf(Objects::isNull);
+                    }
+                });
+                if (maxTime < time) {
+                    maxTime = time;
+                }
+                if (minTime < 0 || minTime > time) {
+                    minTime = time;
+                }
                 return loc1;
-                //});
-                //return waitUntilResolve(1000 * 10);
             }
         };
+    }
+
+    public static double getAverageTime() {
+        return Math.round(times.reduce(ICollectionList.Reducer.SUM_FLOAT) / (float) times.size() * 100F) / 100D;
     }
 
     private static final PairCache blockDataCache = new PairCache();
