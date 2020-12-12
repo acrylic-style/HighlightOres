@@ -1,4 +1,4 @@
-package xyz.acrylicstyle.highlightOre;
+package xyz.acrylicstyle.highlightOres;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

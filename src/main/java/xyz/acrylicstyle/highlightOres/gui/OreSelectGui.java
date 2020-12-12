@@ -1,4 +1,4 @@
-package xyz.acrylicstyle.highlightOre.gui;
+package xyz.acrylicstyle.highlightOres.gui;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
-import xyz.acrylicstyle.highlightOre.HighlightOres;
+import xyz.acrylicstyle.highlightOres.HighlightOres;
 import xyz.acrylicstyle.tomeito_api.gui.PlayerGui;
 import xyz.acrylicstyle.tomeito_api.sounds.Sound;
 
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static xyz.acrylicstyle.highlightOre.HighlightOres.run;
+import static xyz.acrylicstyle.highlightOres.HighlightOres.run;
 
 public class OreSelectGui implements PlayerGui {
     // static stuff //

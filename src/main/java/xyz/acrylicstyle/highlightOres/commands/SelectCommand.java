@@ -1,7 +1,7 @@
-package xyz.acrylicstyle.highlightOre.commands;
+package xyz.acrylicstyle.highlightOres.commands;
 
 import org.bukkit.entity.Player;
-import xyz.acrylicstyle.highlightOre.gui.OreSelectGui;
+import xyz.acrylicstyle.highlightOres.gui.OreSelectGui;
 import xyz.acrylicstyle.tomeito_api.subcommand.PlayerSubCommandExecutor;
 import xyz.acrylicstyle.tomeito_api.subcommand.SubCommand;
 

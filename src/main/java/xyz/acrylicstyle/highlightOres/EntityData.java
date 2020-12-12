@@ -1,6 +1,6 @@
-package xyz.acrylicstyle.highlightOre;
+package xyz.acrylicstyle.highlightOres;
 
-import net.minecraft.server.v1_15_R1.EntityFallingBlock;
+import net.minecraft.server.v1_16_R2.EntityFallingBlock;
 import org.bukkit.block.data.BlockData;
 
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package xyz.acrylicstyle.highlightOre.util;
+package xyz.acrylicstyle.highlightOres.util;
 
 import java.util.Objects;
 
