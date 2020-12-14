@@ -13,7 +13,7 @@ import java.util.List;
 
 public class HighlightTabCompleter extends TabCompleterHelper implements TabCompleter {
     private static final List<String> emptyList = Collections.emptyList();
-    private static final List<String> commands = Arrays.asList("toggle", "select");
+    private static final List<String> commands = Arrays.asList("toggle", "select", "status");
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {

@@ -211,7 +211,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
     }
 
     public static double getAverageTime() {
-        return Math.round(times.reduce(ICollectionList.Reducer.SUM_FLOAT) / (float) times.size() * 100F) / 100D;
+        return Math.round(times.reduce(ICollectionList.Reducer.SUM_FLOAT, 0F) / (float) times.size() * 100F) / 100D;
     }
 
     private static final PairCache blockDataCache = new PairCache();
