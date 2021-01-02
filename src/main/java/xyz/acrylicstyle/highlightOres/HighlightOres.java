@@ -24,7 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import util.CollectionList;
 import util.ICollectionList;
-import util.promise.IPromise;
 import util.promise.Promise;
 import xyz.acrylicstyle.highlightOres.gui.OreSelectGui;
 import xyz.acrylicstyle.highlightOres.util.BlockDataCache;
@@ -100,7 +99,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
         }
         if (entities.get(uuid).isEmpty()) return; // don't waste performance
         AtomicReference<Integer[]> arr = new AtomicReference<>();
-        CollectionList<EntityData> farEntities = entities.get(uuid)
+        ICollectionList<EntityData> farEntities = entities.get(uuid)
                 .clone()
                 .nonNull()
                 .filter(e -> e.getEntity().getBukkitEntity().getLocation().distance(player.getLocation()) > 30);
@@ -159,7 +158,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
                 });
                 return waitUntilResolve(1000 * 10);
             }
-        }.then((IPromise<Object, Boolean>) o -> pending.remove(player.getUniqueId())).queue();
+        }.then(o -> pending.remove(player.getUniqueId())).queue();
     }
 
     public static void run(Runnable runnable) {
