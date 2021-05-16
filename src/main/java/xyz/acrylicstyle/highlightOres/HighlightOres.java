@@ -220,7 +220,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
         Pair<Integer, Integer, Integer> x = new Pair<>(loc.getX(), loc.getY(), loc.getZ());
         if (!blockDataCache.containsKey(x) || blockDataCache.get(x) == null) {
             long start = System.currentTimeMillis();
-            CraftBlockData data = (CraftBlockData) w.getChunkAt(loc.getX() >> 4, loc.getZ() >> 4).bukkitChunk.getBlock(loc.getX(), loc.getY(), loc.getZ()).getBlockData();
+            CraftBlockData data = (CraftBlockData) w.getChunkAt(loc.getX() >> 4, loc.getZ() >> 4).bukkitChunk.getBlock(loc.getX() & 15, loc.getY() & 15, loc.getZ() & 15).getBlockData();
             long end = System.currentTimeMillis();
             if (end - start > 1000) {
                 Log.warn("Took " + (end-start) + "ms to get block at " + loc);
