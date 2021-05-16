@@ -1,21 +1,21 @@
 package xyz.acrylicstyle.highlightOres;
 
-import net.minecraft.server.v1_16_R2.BlockPosition;
-import net.minecraft.server.v1_16_R2.Entity;
-import net.minecraft.server.v1_16_R2.EntityFallingBlock;
-import net.minecraft.server.v1_16_R2.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_16_R2.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_16_R2.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_16_R2.PlayerConnection;
-import net.minecraft.server.v1_16_R2.WorldServer;
+import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.Entity;
+import net.minecraft.server.v1_16_R3.EntityFallingBlock;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_16_R3.PlayerConnection;
+import net.minecraft.server.v1_16_R3.WorldServer;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R2.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -129,7 +129,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
             public Object apply(Object o) {
                 pool.execute(() -> {
                     hideFarEntities(player.getUniqueId());
-                    List<Map.Entry<Location, Material>> blocks = getNearbyBlocks(player.getLocation(), 15, gui.getSelectedMaterials()).complete();
+                    List<Map.Entry<Location, Material>> blocks = getNearbyBlocks(player.getLocation(), 15, gui.getSelectedMaterials());
                     if (!highlight.contains(player.getUniqueId())) {
                         pending.remove(player.getUniqueId());
                         return;
@@ -149,7 +149,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
                         entity.glowing = true;
                         entity.setFlag(6, true);
                         entities.get(player.getUniqueId()).add(ed);
-                        pc.sendPacket(new PacketPlayOutSpawnEntity(entity, net.minecraft.server.v1_16_R2.Block.getCombinedId(data.getState())));
+                        pc.sendPacket(new PacketPlayOutSpawnEntity(entity, net.minecraft.server.v1_16_R3.Block.getCombinedId(data.getState())));
                         pc.sendPacket(new PacketPlayOutEntityMetadata(entity.getId(), entity.getDataWatcher(), true));
                     });
                     if (!highlight.contains(player.getUniqueId())) clearEntities(player.getUniqueId());
@@ -166,47 +166,43 @@ public class HighlightOres extends JavaPlugin implements Listener {
     }
 
     @NotNull
-    public static Promise<List<Map.Entry<Location, Material>>> getNearbyBlocks(@NotNull Location location, int radius, List<Material> materials) {
-        return new Promise<List<Map.Entry<Location, Material>>>() {
-            @Override
-            public List<Map.Entry<Location, Material>> apply(Object o) {
-                CollectionList<BlockPosition> locations = new CollectionList<>();
-                for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
-                    for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
-                        for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
-                            locations.add(new BlockPosition(x, y, z));
-                        }
-                    }
+    public static List<Map.Entry<Location, Material>> getNearbyBlocks(@NotNull Location location, int radius, List<Material> materials) {
+        CollectionList<BlockPosition> locations = new CollectionList<>();
+        for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
+            for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
+                for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
+                    locations.add(new BlockPosition(x, y, z));
                 }
-                long start = System.currentTimeMillis();
-                CraftWorld world = ((CraftWorld) location.getWorld());
-                WorldServer w = world.getHandle();
-                List<Map.Entry<Location, Material>> loc1 = locations
-                        .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(w, loc), loc))
-                        .filter(data -> materials.contains(data.getKey().getMaterial()))
-                        .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()));
-                long end = System.currentTimeMillis();
-                float time = (end - start) / 1000F;
-                writePool.execute(() -> {
-                    synchronized (writeLock) {
-                        times.add(0, time);
-                        if (times.size() > 100) {
-                            for (int i = 100; i < times.size(); i++) {
-                                times.remove(i - 1);
-                            }
-                        }
-                        times.removeIf(Objects::isNull);
-                    }
-                });
-                if (maxTime < time) {
-                    maxTime = time;
-                }
-                if (minTime < 0 || minTime > time) {
-                    minTime = time;
-                }
-                return loc1;
             }
-        };
+        }
+        long start = System.currentTimeMillis();
+        CraftWorld world = ((CraftWorld) location.getWorld());
+        assert world != null;
+        WorldServer w = world.getHandle();
+        List<Map.Entry<Location, Material>> loc1 = locations
+                .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(w, loc), loc))
+                .filter(data -> materials.contains(data.getKey().getMaterial()))
+                .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()));
+        long end = System.currentTimeMillis();
+        float time = (end - start) / 1000F;
+        writePool.execute(() -> {
+            synchronized (writeLock) {
+                times.add(0, time);
+                if (times.size() > 100) {
+                    for (int i = 100; i < times.size(); i++) {
+                        times.remove(i - 1);
+                    }
+                }
+                times.removeIf(Objects::isNull);
+            }
+        });
+        if (maxTime < time) {
+            maxTime = time;
+        }
+        if (minTime < 0 || minTime > time) {
+            minTime = time;
+        }
+        return loc1;
     }
 
     public static double getAverageTime() {
@@ -224,18 +220,13 @@ public class HighlightOres extends JavaPlugin implements Listener {
         Pair<Integer, Integer, Integer> x = new Pair<>(loc.getX(), loc.getY(), loc.getZ());
         if (!blockDataCache.containsKey(x) || blockDataCache.get(x) == null) {
             long start = System.currentTimeMillis();
-            CraftBlockData data = w.getChunkAt(loc.getX() >> 4, loc.getZ() >> 4).getBlockData(loc.getX(), loc.getY(), loc.getZ()).createCraftBlockData();
+            CraftBlockData data = (CraftBlockData) w.getChunkAt(loc.getX() >> 4, loc.getZ() >> 4).bukkitChunk.getBlock(loc.getX(), loc.getY(), loc.getZ()).getBlockData();
             long end = System.currentTimeMillis();
             if (end - start > 1000) {
-                Log.warn("Took " + (end-start) + "ms to get block at " + loc.toString());
+                Log.warn("Took " + (end-start) + "ms to get block at " + loc);
                 Log.warn("block was: " + data.getMaterial().name());
-                Log.warn("Loaded chunks: " + w.getWorld().getChunkCount());
                 Log.warn("Cache size: " + blockDataCache.size());
                 Log.warn("Cleared cache: " + clearedCacle);
-            }
-            if (data == null) {
-                Log.info("Null data");
-                Thread.dumpStack();
             }
             blockDataCache.put(x, data);
             return data;
