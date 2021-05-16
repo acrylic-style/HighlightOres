@@ -75,6 +75,7 @@ public class OreSelectGui implements PlayerGui {
         inventory.setItem(5, getItemStack(Material.LAPIS_ORE, ChatColor.BLUE + "Lapis Ore", selectedMaterials.contains(Material.LAPIS_ORE)));
         inventory.setItem(6, getItemStack(Material.COAL_ORE, ChatColor.GRAY + "Coal Ore", selectedMaterials.contains(Material.COAL_ORE)));
         inventory.setItem(7, getItemStack(Material.NETHER_QUARTZ_ORE, ChatColor.WHITE + "Nether Quartz Ore", selectedMaterials.contains(Material.NETHER_QUARTZ_ORE)));
+        inventory.setItem(8, getItemStack(Material.ANCIENT_DEBRIS, ChatColor.WHITE + "Ancient Debris", selectedMaterials.contains(Material.ANCIENT_DEBRIS)));
         inventory.setItem(17, getItemStack(Material.BARRIER, ChatColor.RED + "Close", false));
         return inventory;
     }
@@ -110,6 +111,8 @@ public class OreSelectGui implements PlayerGui {
             check(p, e.getInventory(), Material.COAL_ORE);
         } else if (e.getSlot() == 7) {
             check(p, e.getInventory(), Material.NETHER_QUARTZ_ORE);
+        } else if (e.getSlot() == 8) {
+            check(p, e.getInventory(), Material.ANCIENT_DEBRIS);
         } else if (e.getSlot() == 17) {
             p.closeInventory();
         }
