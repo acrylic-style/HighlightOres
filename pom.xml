@@ -67,9 +67,8 @@
         </dependency>
         <dependency>
             <groupId>xyz.acrylicstyle</groupId>
-            <artifactId>api</artifactId>
-            <version>0.7.4a</version>
-            <scope>provided</scope>
+            <artifactId>java-util-all</artifactId>
+            <version>0.14.9</version>
         </dependency>
     </dependencies>
 </project>

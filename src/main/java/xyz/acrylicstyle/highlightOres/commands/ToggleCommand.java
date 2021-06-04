@@ -5,8 +5,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import xyz.acrylicstyle.highlightOres.HighlightOres;
-import xyz.acrylicstyle.tomeito_api.subcommand.PlayerSubCommandExecutor;
-import xyz.acrylicstyle.tomeito_api.subcommand.SubCommand;
+import xyz.acrylicstyle.highlightOres.subcommand.PlayerSubCommandExecutor;
+import xyz.acrylicstyle.highlightOres.subcommand.SubCommand;
 
 import java.util.Collections;
 

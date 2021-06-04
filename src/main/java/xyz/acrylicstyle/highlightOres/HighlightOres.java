@@ -27,11 +27,11 @@ import util.ICollectionList;
 import util.promise.Promise;
 import xyz.acrylicstyle.highlightOres.gui.OreSelectGui;
 import xyz.acrylicstyle.highlightOres.util.BlockDataCache;
+import xyz.acrylicstyle.highlightOres.util.Log;
+import xyz.acrylicstyle.highlightOres.util.NotTomeitoLib;
 import xyz.acrylicstyle.highlightOres.util.Pair;
 import xyz.acrylicstyle.highlightOres.util.PairCache;
-import xyz.acrylicstyle.tomeito_api.TomeitoAPI;
-import xyz.acrylicstyle.tomeito_api.gui.PerPlayerInventory;
-import xyz.acrylicstyle.tomeito_api.utils.Log;
+import xyz.acrylicstyle.highlightOres.util.UUIDMap;
 
 import java.util.AbstractMap;
 import java.util.ConcurrentModificationException;
@@ -63,8 +63,8 @@ public class HighlightOres extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         Bukkit.getPluginManager().registerEvents(this, this);
-        TomeitoAPI.getInstance().registerCommands(this.getClassLoader(), "highlight", "xyz.acrylicstyle.highlightOres.commands");
-        TomeitoAPI.registerTabCompleter("highlight", new HighlightTabCompleter());
+        NotTomeitoLib.registerCommands(this.getClassLoader(), "highlight", "xyz.acrylicstyle.highlightOres.commands");
+        Objects.requireNonNull(Bukkit.getPluginCommand("highlight")).setTabCompleter(new HighlightTabCompleter());
     }
 
     @Override
@@ -74,7 +74,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
         writePool.shutdownNow();
     }
 
-    public static final PerPlayerInventory<CollectionList<EntityData>> entities = new PerPlayerInventory<>(uuid -> new CollectionList<>());
+    public static final UUIDMap<CollectionList<EntityData>> entities = new UUIDMap<>(uuid -> new CollectionList<>());
 
     public static void clearEntities(UUID uuid) {
         if (!entities.containsKey(uuid)) entities.add(uuid, new CollectionList<>());

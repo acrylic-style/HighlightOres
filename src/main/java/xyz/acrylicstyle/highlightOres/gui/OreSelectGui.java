@@ -6,27 +6,29 @@ import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import xyz.acrylicstyle.highlightOres.HighlightOres;
-import xyz.acrylicstyle.tomeito_api.gui.PlayerGui;
-import xyz.acrylicstyle.tomeito_api.sounds.Sound;
+import xyz.acrylicstyle.highlightOres.util.Sound;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static xyz.acrylicstyle.highlightOres.HighlightOres.run;
 
-public class OreSelectGui implements PlayerGui {
+public class OreSelectGui implements InventoryHolder, Listener {
     // static stuff //
     private static final Map<UUID, OreSelectGui> cache = new HashMap<>();
 
@@ -38,7 +40,7 @@ public class OreSelectGui implements PlayerGui {
     private static ItemStack getItemStack(Material material, String displayName, boolean enchanted) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(displayName);
+        Objects.requireNonNull(meta).setDisplayName(displayName);
         if (enchanted) {
             meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);

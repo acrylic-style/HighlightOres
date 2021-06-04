@@ -4,8 +4,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import xyz.acrylicstyle.highlightOres.HighlightOres;
-import xyz.acrylicstyle.tomeito_api.subcommand.SubCommand;
-import xyz.acrylicstyle.tomeito_api.subcommand.SubCommandExecutor;
+import xyz.acrylicstyle.highlightOres.subcommand.SubCommand;
+import xyz.acrylicstyle.highlightOres.subcommand.SubCommandExecutor;
 
 @SubCommand(name = "status", usage = "/highlight status", description = "Shows current status of plugin.")
 public class StatusCommand implements SubCommandExecutor {
