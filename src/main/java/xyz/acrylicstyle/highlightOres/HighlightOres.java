@@ -1,21 +1,22 @@
 package xyz.acrylicstyle.highlightOres;
 
-import net.minecraft.server.v1_16_R3.BlockPosition;
-import net.minecraft.server.v1_16_R3.Entity;
-import net.minecraft.server.v1_16_R3.EntityFallingBlock;
-import net.minecraft.server.v1_16_R3.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_16_R3.PacketPlayOutEntityMetadata;
-import net.minecraft.server.v1_16_R3.PacketPlayOutSpawnEntity;
-import net.minecraft.server.v1_16_R3.PlayerConnection;
-import net.minecraft.server.v1_16_R3.WorldServer;
+import net.minecraft.server.v1_15_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.Entity;
+import net.minecraft.server.v1_15_R1.EntityFallingBlock;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
+import net.minecraft.server.v1_15_R1.PacketPlayOutEntityMetadata;
+import net.minecraft.server.v1_15_R1.PacketPlayOutSpawnEntity;
+import net.minecraft.server.v1_15_R1.PlayerConnection;
+import net.minecraft.server.v1_15_R1.WorldServer;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -137,6 +138,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
                     PlayerConnection pc = ((CraftPlayer) player).getHandle().playerConnection;
                     WorldServer s = ((CraftWorld) player.getWorld()).getHandle();
                     blocks.forEach(block -> {
+                        player.sendBlockChange(block.getKey(), Material.AIR.createBlockData());
                         CraftBlockData data = cache.getOrCreate(block.getValue());
                         EntityFallingBlock entity = new EntityFallingBlock(s, block.getKey().getX() + 0.5, block.getKey().getY(), block.getKey().getZ() + 0.5, data.getState());
                         EntityData ed = new EntityData(entity, data);
@@ -149,7 +151,7 @@ public class HighlightOres extends JavaPlugin implements Listener {
                         entity.glowing = true;
                         entity.setFlag(6, true);
                         entities.get(player.getUniqueId()).add(ed);
-                        pc.sendPacket(new PacketPlayOutSpawnEntity(entity, net.minecraft.server.v1_16_R3.Block.getCombinedId(data.getState())));
+                        pc.sendPacket(new PacketPlayOutSpawnEntity(entity, net.minecraft.server.v1_15_R1.Block.getCombinedId(data.getState())));
                         pc.sendPacket(new PacketPlayOutEntityMetadata(entity.getId(), entity.getDataWatcher(), true));
                     });
                     if (!highlight.contains(player.getUniqueId())) clearEntities(player.getUniqueId());
@@ -171,18 +173,21 @@ public class HighlightOres extends JavaPlugin implements Listener {
         for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
             for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
                 for (int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
-                    locations.add(new BlockPosition(x, y, z));
+                    if (y >= 0) {
+                        locations.add(new BlockPosition(x, y, z));
+                    }
                 }
             }
         }
         long start = System.currentTimeMillis();
         CraftWorld world = ((CraftWorld) location.getWorld());
         assert world != null;
-        WorldServer w = world.getHandle();
         List<Map.Entry<Location, Material>> loc1 = locations
-                .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(w, loc), loc))
+                .map(loc -> new AbstractMap.SimpleEntry<>(getBlockData(world, loc), loc))
                 .filter(data -> materials.contains(data.getKey().getMaterial()))
                 .map(loc -> new AbstractMap.SimpleEntry<>(new Location(world, loc.getValue().getX(), loc.getValue().getY(), loc.getValue().getZ()), loc.getKey().getMaterial()));
+
+        // record time
         long end = System.currentTimeMillis();
         float time = (end - start) / 1000F;
         writePool.execute(() -> {
@@ -211,22 +216,22 @@ public class HighlightOres extends JavaPlugin implements Listener {
 
     private static final PairCache blockDataCache = new PairCache();
 
-    public static CraftBlockData getBlockData(WorldServer w, BlockPosition loc) {
-        boolean clearedCacle = false;
+    public static CraftBlockData getBlockData(World w, BlockPosition loc) {
+        boolean clearedCache = false;
         if (blockDataCache.size() > 500000) {
             blockDataCache.clear();
-            clearedCacle = true;
+            clearedCache = true;
         }
         Pair<Integer, Integer, Integer> x = new Pair<>(loc.getX(), loc.getY(), loc.getZ());
         if (!blockDataCache.containsKey(x) || blockDataCache.get(x) == null) {
             long start = System.currentTimeMillis();
-            CraftBlockData data = (CraftBlockData) w.getChunkAt(loc.getX() >> 4, loc.getZ() >> 4).bukkitChunk.getBlock(loc.getX() & 15, loc.getY() & 15, loc.getZ() & 15).getBlockData();
+            CraftBlockData data = (CraftBlockData) w.getBlockAt(loc.getX(), loc.getY(), loc.getZ()).getBlockData();
             long end = System.currentTimeMillis();
             if (end - start > 1000) {
                 Log.warn("Took " + (end-start) + "ms to get block at " + loc);
                 Log.warn("block was: " + data.getMaterial().name());
                 Log.warn("Cache size: " + blockDataCache.size());
-                Log.warn("Cleared cache: " + clearedCacle);
+                Log.warn("Cleared cache: " + clearedCache);
             }
             blockDataCache.put(x, data);
             return data;

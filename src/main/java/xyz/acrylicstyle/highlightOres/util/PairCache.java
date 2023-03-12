@@ -1,6 +1,6 @@
 package xyz.acrylicstyle.highlightOres.util;
 
-import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
+import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData;
 
 import java.util.HashMap;
 

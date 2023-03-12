@@ -45,24 +45,28 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <relocations>
+                        <relocation>
+                            <pattern>util</pattern>
+                            <shadedPattern>xyz.acrylicstyle.highlightOres.libs.util</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
             </plugin>
         </plugins>
     </build>
     <repositories>
         <repository>
             <id>acrylic-repo</id>
-            <url>https://repo.acrylicstyle.xyz/</url>
-        </repository>
-        <repository>
-            <id>acrylic-repo2</id>
-            <url>https://repo2.acrylicstyle.xyz/</url>
+            <url>https://repo.acrylicstyle.xyz/repository/maven-public/</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot</artifactId>
-            <version>1.16.5-R0.1-SNAPSHOT</version>
+            <version>1.15.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

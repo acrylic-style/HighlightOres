@@ -2,8 +2,6 @@ name: HighlightOres
 main: xyz.acrylicstyle.highlightOres.HighlightOres
 version: "1.0"
 api-version: "1.15"
-depend:
-  - TomeitoLib
 commands:
   highlight:
     description: ""
